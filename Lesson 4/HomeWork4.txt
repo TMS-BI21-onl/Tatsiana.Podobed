@@ -1,0 +1,130 @@
+3.	При каких значениях оконные функции Row Number, Rank и Dense Rank вернут одинаковый результат?
+- Если исходные значения в столбце не будут содержать дубликатов. Тогда результат будет: 1 2 3 4 5...
+
+4.	Решите на базе данных AdventureWorks2017 следующие задачи. 
+
+a)	Изучите данные в таблице Production.UnitMeasure. Проверьте, есть ли здесь UnitMeasureCode, 
+начинающиеся на букву ‘Т’. (НЕТ)
+
+SELECT *
+FROM Production.UnitMeasure pu
+WHERE LEFT(pu.UnitMeasureCode,1) = 'T'
+
+Сколько всего различных кодов здесь есть? (38)
+
+SELECT COUNT(DISTINCT pu.UnitMeasureCode)
+FROM Production.UnitMeasure pu
+
+Вставьте следующий набор данных в таблицу:
+•	TT1, Test 1, 9 сентября 2020
+•	TT2, Test 2, getdate()
+
+Проверьте теперь, есть ли здесь UnitMeasureCode, начинающиеся на букву ‘Т’. (ЕСТЬ 2 записи)
+
+INSERT INTO Production.UnitMeasure
+VALUES ('TT1', 'Test 1', CAST('09.09.2020' AS DATETIME)),
+       ('TT2', 'Test 2', getdate())
+
+SELECT COUNT(1)
+FROM Production.UnitMeasure pu
+WHERE LEFT(pu.UnitMeasureCode,1) = 'T'
+
+b)	Теперь загрузите вставленный набор в новую, не существующую таблицу Production.UnitMeasureTest. 
+Догрузите сюда информацию из Production.UnitMeasure по UnitMeasureCode = ‘CAN’.  
+Посмотрите результат в отсортированном виде по коду. 
+
+SELECT *
+INTO Production.UnitMeasureTest
+FROM Production.UnitMeasure pu
+WHERE LEFT(pu.UnitMeasureCode,1) = 'T'
+
+SELECT *
+FROM Production.UnitMeasureTest
+
+INSERT INTO Production.UnitMeasureTest
+SELECT *
+FROM Production.UnitMeasure
+WHERE UnitMeasureCode = 'CAN'
+
+SELECT *
+FROM Production.UnitMeasureTest t
+ORDER BY t.UnitMeasureCode
+
+c)	Измените UnitMeasureCode для всего набора из Production.UnitMeasureTest на ‘TTT’.
+
+UPDATE Production.UnitMeasureTest
+SET UnitMeasureCode = 'TTT'
+
+SELECT *
+FROM Production.UnitMeasureTest
+
+d)	Удалите все строки из Production.UnitMeasureTest.
+
+DELETE
+FROM Production.UnitMeasureTest
+
+SELECT *
+FROM Production.UnitMeasureTest
+
+e)	Найдите информацию из Sales.SalesOrderDetail по заказам 43659,43664.  
+С помощью оконных функций MAX, MIN, AVG найдем агрегаты по LineTotal для каждого SalesOrderID.
+
+SELECT so.SalesOrderID
+      ,so.LineTotal
+      ,MAX(so.LineTotal) OVER (PARTITION BY so.SalesOrderID)
+	  ,MIN(so.LineTotal) OVER (PARTITION BY so.SalesOrderID)
+	  ,AVG(so.LineTotal) OVER (PARTITION BY so.SalesOrderID)
+FROM Sales.SalesOrderDetail so
+WHERE so.SalesOrderID in (43659,43664)
+
+f)	Изучите данные в объекте Sales.vSalesPerson. 
+Создайте рейтинг cреди продавцов на основе годовых продаж SalesYTD, используя ранжирующую оконную функцию. 
+Добавьте поле Login, состоящий из 3 первых букв фамилии в верхнем регистре + ‘login’ + TerritoryGroup (Null заменить на пустое значение). 
+
+SELECT DENSE_RANK() OVER (ORDER BY sp.SalesYTD DESC) AS RANK_SalesYTD
+	  ,CONCAT(UPPER(LEFT(sp.LastName,3)),'login',TerritoryGroup) AS Login
+FROM Sales.vSalesPerson sp
+
+Кто возглавляет рейтинг? (Login = MITloginNorth America)
+
+--TOP 1 SalesYTD
+SELECT TOP 1 
+       DENSE_RANK() OVER (ORDER BY sp.SalesYTD DESC) AS RANK_SalesYTD
+	  ,CONCAT(UPPER(LEFT(sp.LastName,3)),'login',TerritoryGroup) AS Login
+	  ,sp.SalesYTD
+FROM Sales.vSalesPerson sp
+
+А кто возглавлял рейтинг в прошлом году (SalesLastYear). (Login = VARloginEurope)
+
+--TOP 1 SalesLastYear
+SELECT TOP 1 
+       DENSE_RANK() OVER (ORDER BY SalesLastYear DESC) AS RANK_SalesYTD
+	  ,CONCAT(UPPER(LEFT(sp.LastName,3)),'login',TerritoryGroup) AS Login
+	  ,sp.SalesLastYear
+FROM Sales.vSalesPerson sp
+
+g)	Найдите первый будний день месяца (FROM не используем). Нужен стандартный код на все времена.
+
+--Если не учитывать праздничные дни, то можно сделать так...
+--Но для праздничных, я не вижу другого варианта, как создавать отдельную таблицу с меткой на праздничные дни.
+
+SELECT CASE WHEN DATENAME(WEEKDAY,DATEADD(MM, DATEDIFF(MM, 0, getdate()),0)) = 'Saturday'
+            THEN DATEADD(MM, DATEDIFF(MM, 0, getdate()),0) + 2
+			WHEN DATENAME(WEEKDAY,DATEADD(MM, DATEDIFF(MM, 0, getdate()),0)) = 'Sunday'
+            THEN DATEADD(MM, DATEDIFF(MM, 0, getdate()),0) + 1
+	   ELSE DATEADD(MM, DATEDIFF(MM, 0, getdate()),0) END AS FIRST_WEEKDAY
+
+5.	 Давайте еще раз остановимся и отточим понимание функции count. 
+Найдите значения count(1), count(name), count(id), count(*) для следующей таблицы:
+Id(PK)	Name		DepName
+1	null		A
+2	null		null
+3	A		C
+4	B		C
+
+count(1) =  4
+count(name) = 2
+count(id) = 4
+count(*) = 4 
+
+
