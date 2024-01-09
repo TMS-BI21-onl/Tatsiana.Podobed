@@ -1,0 +1,68 @@
+Блок 1 
+Задача 1
+
+select *
+from Водители
+whehe Стаж not in (3,5,6,10)
+and Место прописки = 'eee'
+
+Задача 2
+
+select № паспорта
+from Водители v
+left join Диспетчерская d on v.Код водителя = d.Код водителя
+where d.Код водителя in null
+
+Задача 3
+
+select Регистрационный № авто
+      ,Время прибытия
+      ,Время отбытия
+      ,Пункт назначения
+from Автомобили a
+join Диспетчерская d on a.Код авто = d.Код авто
+join Маршрут m on d.Путевка = m.Код маршрута
+where Год выпуска авто = 2015
+
+Блок 2
+Задача 1
+
+select LEFT(FIRST_NAME,1)
+      ,count (EMPLOYEE_ID)
+from EMPLOYESS
+having count (EMPLOYEE_ID) > 1
+group by LEFT(FIRST_NAME,1)
+order by count (EMPLOYEE_ID)
+
+Задача 2
+
+select DEPERTMENT_ID
+      ,SALARY
+      ,count (EMPLOYEE_ID)
+from EMPLOYEES
+group by DEPERTMENT_ID
+        ,SALARY
+
+Задача 3
+
+select FIRST_NAME
+      ,LAST_NAME
+from EMPLOYESS e
+left join DEPERTMENTS d on e.DEPERTMENT_ID = d.DEPERTMENT_ID
+where d.DEPERTMENT_ID is null
+
+Задача 4
+
+select top 1 with ties concat(FIRST_NAME ,' ',LAST_NAME)
+from EMPLOYESS
+order by len(FIRST_NAME) desc
+
+Задача 5
+
+select e.FIRST_NAME
+      ,e.LAST_NAME
+      ,jh.END_DATE
+      ,case when jh.EMPLOYEE_ID is null then 'Работает'
+            else 'Покинул компанию' end as Статус
+from EMPLOYESS e
+left join JOB_HISTORY jh on e.EMPLOYEE_ID = jh.EMPLOYEE_ID
