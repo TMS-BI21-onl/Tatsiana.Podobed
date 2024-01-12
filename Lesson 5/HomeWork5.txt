@@ -1,0 +1,95 @@
+ПРОВЕРОЧНАЯ РАБОТА
+Задача 2.1
+
+-- Обнаружила что по спешке поменяла местами операторы в проверочной, исправляюсь)
+select LEFT(FIRST_NAME,1)
+      ,count (EMPLOYEE_ID)
+from EMPLOYESS
+group by LEFT(FIRST_NAME,1)
+having count (EMPLOYEE_ID) > 1
+order by count (EMPLOYEE_ID)
+
+Задача 2.5
+
+select e.FIRST_NAME
+      ,case when jh.EMPLOYEE_ID is null then 'Currently Working'
+            else concat('Left the company at ',datename(day,jh.END_DATE),' of ',datename(month,jh.END_DATE),', ',datename(year,jh.END_DATE)) end as Status
+from EMPLOYESS e
+left join JOB_HISTORY jh on e.EMPLOYEE_ID = jh.EMPLOYEE_ID
+
+HomeWork 5
+
+6.	В базе данных AdventureWorks2017 создать таблицу Patients для ведения наблюдений за температурой пациентов больницы. Таблица должна содержать поля:
+ID – числовое поле. Авто заполняется.
+FirstName – имя пациента.
+LastName – фамилия пациента.
+SSN – уникальный идентификатор пациента.
+Email – электронная почта пациента. Формируется по следующему правилу: первая большая буква FirstName + маленькие 3 буквы LastName + @mail.com (например, Akli@mail.com). Полезная ссылка здесь. 
+Temp – температура пациента.
+CreatedDate — дата измерений. 
+
+CREATE TABLE Patients
+(ID				INT IDENTITY,
+ FirstName		CHAR(100),
+ LastName		CHAR(100),
+ SSN			AS NEWID(),
+ Email			AS CONCAT(LEFT(UPPER(FirstName),1),LEFT(LOWER(LastName),3),'@mail.com'),
+ Temp			DECIMAL(3,1),
+ CreatedDate	DATE
+ )
+
+SELECT * FROM Patients
+
+
+7.	Добавить в таблицу несколько произвольных записей. 
+
+INSERT INTO Patients (FirstName, LastName, Temp, CreatedDate)
+VALUES ('John', 'Doe', '36.6', '2024-01-12'),
+	   ('Kate', 'Daff', '37.1', '2024-01-11')
+
+SELECT * FROM Patients
+
+
+8.	Добавить поле TempType со следующими значениями ‘< 37°C’,  ‘> 37°C’ на основе значений из поля Temp ( используйте ALTER TABLE 
+ADD column AS ). Посмотрите на данные, которые получились.
+
+ALTER TABLE Patients
+ADD TempType AS CASE WHEN Temp < 37 THEN '<37°C' ELSE '>37°C' END
+                         
+SELECT * FROM Patients
+
+
+9.	Создать представление Patients_v, показывающее температуру в градусах Фаренгейта (°F = °Cx9/5 + 32)
+
+CREATE VIEW dbo.Patients_v
+AS 
+SELECT ID, FirstName, LastName, SSN, Email, (Temp*9/5+32) AS TempF, CreatedDate
+FROM Patients
+
+SELECT * FROM Patients_v
+
+
+10.	Создать функцию, которая возвращает температуру в градусах Фаренгейта, при подаче на вход градусы в Цельсиях.
+
+CREATE FUNCTION dbo.udfTemp_C_to_F (
+				@TempC DECIMAL(3,1))
+RETURNS DECIMAL(4,2)
+AS
+BEGIN
+RETURN @TempC*9/5+32
+END
+
+SELECT dbo.udfTemp_C_to_F (36.6) AS TempF
+
+
+11.	Перепишите решение задачи g из прошлого дз с использованием переменной, максимально упрощая select.
+
+g)	Найдите первый будний день месяца (FROM не используем). Нужен стандартный код на все времена.
+
+--Если не учитывать праздничные дни, то можно сделать так...
+--Но для праздничных, я не вижу другого варианта, как создавать отдельную таблицу с меткой на праздничные дни.
+
+DECLARE @Date DATETIME = DATEADD(MM, DATEDIFF(MM, 0, getdate()),0)
+SELECT CASE WHEN DATENAME(WEEKDAY,@Date) = 'Saturday' THEN @Date + 2
+			WHEN DATENAME(WEEKDAY,@Date) = 'Sunday' THEN @Date + 1
+	   ELSE @Date END AS FIRST_WEEKDAY
