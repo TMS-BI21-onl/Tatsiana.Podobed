@@ -1,0 +1,36 @@
+Задание 1 
+
+Будет в отдельном файле 14.01.2024
+
+Задание 2
+
+2.	Какие процедуры есть в нашей базе данных AdventureWorks2017? 
+
+[dbo].[uspGetBillOfMaterials]
+[dbo].[uspGetEmployeeManagers]
+[dbo].[uspGetManagerEmployees]
+[dbo].[uspGetWhereUsedProductID]
+[dbo].[uspLogError]
+[dbo].[uspPrintError]
+[dbo].[uspSearchCandidateResumes]
+[HumanResources].[uspUpdateEmployeeHireInfo]
+[HumanResources].[uspUpdateEmployeeLogin]
+[HumanResources].[uspUpdateEmployeePersonalInfo]
+и много Системных
+
+Задание 3
+
+3.	Создайте объект с параметрами для обновления значения NationalIDNumber в таблице HumanResources.Employee для указанного BusinessEntityID. Т.е. объекту будет подаваться 2 значения: BusinessEntityID (для кого изменяем данные) и NationalIDNumber (на какое значение изменяем).
+С помощью данного объекта попробуйте заменить NationalIDNumber на 879341111 для BusinessEntityID= 15.
+
+USE AdventureWorks2017;
+GO
+CREATE PROCEDURE dbo.uspUpdateTable AS
+UPDATE HumanResources.Employee
+SET NationalIDNumber = '879341111'
+WHERE BusinessEntityID = 15
+
+EXEC dbo.uspUpdateTable
+
+SELECT *
+FROM HumanResources.Employee
