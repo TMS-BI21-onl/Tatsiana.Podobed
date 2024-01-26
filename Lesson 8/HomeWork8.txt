@@ -1,0 +1,11 @@
+WITH 
+FN AS
+(SELECT DISTINCT pp.FirstName
+ FROM Person.Person pp),
+LN AS
+(SELECT DISTINCT pp.LastName
+ FROM Person.Person pp)
+SELECT TOP (1000000) FN.*, LN.*, CONCAT (FN.FirstName, ' ', LN.LastName) AS Name
+FROM FN
+CROSS JOIN LN
+ORDER BY NEWID()
