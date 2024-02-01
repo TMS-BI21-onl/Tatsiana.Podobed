@@ -1,0 +1,8 @@
+3 задача 3 вариант
+
+SELECT pp2.Color, pp2.Name, StandardCost
+FROM
+(SELECT DISTINCT pp.Color, MAX(pp.StandardCost) as Max_Cost
+FROM Production.Product pp
+GROUP BY Color) pp
+JOIN Production.Product pp2 ON pp.Color = pp2.Color AND pp.Max_Cost = pp2.StandardCost 
