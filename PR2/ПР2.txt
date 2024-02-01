@@ -1,0 +1,46 @@
+--Задача 1
+--1) Найдите людей и их номера телефонов, код города которых начинается на  4 и заканчивается на 5. ( таблицы Person.PersonPhone, Person.Person) 
+
+SELECT pp.BusinessEntityID, pp.FirstName, pp.LastName, ph.PhoneNumber
+FROM Person.Person pp
+JOIN Person.PersonPhone ph ON pp.BusinessEntityID = ph.BusinessEntityID
+WHERE LEFT(ph.PhoneNumber,1) = '4' AND RIGHT(ph.PhoneNumber,1) = '5';
+
+--Задача 2
+--2) Отнести каждого человека из [HumanResources].[Employee] в свою возрастную категорию:
+--Adolescence: 17-20
+--Adults: 21-59
+--Elderly: 60-75
+--Senile: 76-90
+
+
+SELECT he.BusinessEntityID
+      ,CASE WHEN DATEDIFF(YEAR, he.BirthDate, GETDATE()) BETWEEN 17 and 20 THEN 'Adolescence'
+            WHEN DATEDIFF(YEAR, he.BirthDate, GETDATE()) BETWEEN 21 and 59 THEN 'Adults'
+			WHEN DATEDIFF(YEAR, he.BirthDate, GETDATE()) BETWEEN 60 and 75 THEN 'Elderly'
+			WHEN DATEDIFF(YEAR, he.BirthDate, GETDATE()) BETWEEN 76 and 90 THEN 'Senile'
+	  END AS AGE
+FROM HumanResources.Employee he
+
+
+--3) Вывести самый дорогой продукт для каждого цвета из [Production].[Product] (3 способа)
+
+SELECT pp2.Name, pp.*
+FROM
+(SELECT DISTINCT pp.Color, MAX(pp.StandardCost) OVER (PARTITION BY pp.Color) AS Max_Cost
+FROM Production.Product pp) pp
+JOIN Production.Product pp2 ON pp.Color = pp2.Color AND pp.Max_Cost = pp2.StandardCost
+
+
+SELECT Color, Name, StandardCost
+FROM
+(SELECT DISTINCT pp.Color, pp.Name, pp.StandardCost, RANK() OVER (PARTITION BY pp.Color ORDER BY pp.StandardCost DESC) AS Rang
+FROM Production.Product pp) x
+WHERE x.Rang = 1 AND COLOR IS NOT NULL
+
+
+--не смогла добить до конца
+SELECT pp.Name, pp.Color, MAX(pp.StandardCost) AS SC
+FROM Production.Product pp
+GROUP BY pp.Name, pp.Color
+ORDER BY MAX(pp.StandardCost) DESC
