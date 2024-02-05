@@ -1,0 +1,11 @@
+--3.	Напишите скрипт для суммы OrderQty для каждого года и зимних месяцев из Production.WorkOrder в виде транспонированной матрицы:
+
+SELECT Year, [January], [February], [December]
+FROM
+(SELECT DATENAME(YEAR, wo.DueDate) AS Year
+       ,DATENAME(MONTH, wo.DueDate) AS Month
+	   ,OrderQty
+ FROM Production.WorkOrder wo ) AS WorkOrderTable
+PIVOT
+(SUM(OrderQty) FOR Month in ([January],[February],[December])) AS PivotTable
+ORDER BY Year
