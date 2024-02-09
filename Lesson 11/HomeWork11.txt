@@ -1,0 +1,98 @@
+--Задание 3
+
+--Создать таблицу с количеством использования функций, используя data_for_merge.csv, заполнить ее через оператор merge.  
+--Итоговая таблица с результатами должна иметь вид
+--Function_name	Function_count
+--CASE		4
+--CAST		2
+--CONCAT	7
+
+DROP TABLE dbo.HW_11
+DROP TABLE dbo.data_for_merge
+
+CREATE TABLE dbo.HW_11 (
+	Function_name NVARCHAR(30),
+	Function_count INT)
+
+SELECT *
+FROM dbo.HW_11
+
+SELECT *
+FROM dbo.data_for_merge
+
+-------------------------------------------------------------------------------------------------------
+MERGE dbo.HW_11 AS target
+USING (SELECT Alex AS Function_name, COUNT(Alex) AS Function_count
+	   FROM dbo.data_for_merge
+	   WHERE Alex IS NOT NULL GROUP BY Alex) AS source
+ON target.Function_name = source.Function_name
+WHEN MATCHED     THEN UPDATE SET target.Function_count = target.Function_count + source.Function_count
+WHEN NOT MATCHED THEN INSERT VALUES (source.Function_name, source.Function_count);
+GO
+MERGE dbo.HW_11 AS target
+USING (SELECT Carlos AS Function_name, COUNT(Carlos) AS Function_count
+	   FROM dbo.data_for_merge
+	   WHERE Carlos IS NOT NULL GROUP BY Carlos) AS source
+ON target.Function_name = source.Function_name
+WHEN MATCHED     THEN UPDATE SET target.Function_count = target.Function_count + source.Function_count
+WHEN NOT MATCHED THEN INSERT VALUES (source.Function_name, source.Function_count);
+GO
+MERGE dbo.HW_11 AS target
+USING (SELECT Charles AS Function_name, COUNT(Charles) AS Function_count
+	   FROM dbo.data_for_merge
+	   WHERE Charles IS NOT NULL GROUP BY Charles) AS source
+ON target.Function_name = source.Function_name
+WHEN MATCHED     THEN UPDATE SET target.Function_count = target.Function_count + source.Function_count
+WHEN NOT MATCHED THEN INSERT VALUES (source.Function_name, source.Function_count);
+GO
+MERGE dbo.HW_11 AS target
+USING (SELECT Daniel AS Function_name, COUNT(Daniel) AS Function_count
+	   FROM dbo.data_for_merge
+	   WHERE Daniel IS NOT NULL GROUP BY Daniel) AS source
+ON target.Function_name = source.Function_name
+WHEN MATCHED     THEN UPDATE SET target.Function_count = target.Function_count + source.Function_count
+WHEN NOT MATCHED THEN INSERT VALUES (source.Function_name, source.Function_count);
+GO
+MERGE dbo.HW_11 AS target
+USING (SELECT Esteban AS Function_name, COUNT(Esteban) AS Function_count
+	   FROM dbo.data_for_merge
+	   WHERE Esteban IS NOT NULL GROUP BY Esteban) AS source
+ON target.Function_name = source.Function_name
+WHEN MATCHED     THEN UPDATE SET target.Function_count = target.Function_count + source.Function_count
+WHEN NOT MATCHED THEN INSERT VALUES (source.Function_name, source.Function_count);
+GO
+MERGE dbo.HW_11 AS target
+USING (SELECT Fred AS Function_name, COUNT(Fred) AS Function_count
+	   FROM dbo.data_for_merge
+	   WHERE Fred IS NOT NULL GROUP BY Fred) AS source
+ON target.Function_name = source.Function_name
+WHEN MATCHED     THEN UPDATE SET target.Function_count = target.Function_count + source.Function_count
+WHEN NOT MATCHED THEN INSERT VALUES (source.Function_name, source.Function_count);
+GO
+MERGE dbo.HW_11 AS target
+USING (SELECT George AS Function_name, COUNT(George) AS Function_count
+	   FROM dbo.data_for_merge
+	   WHERE George IS NOT NULL GROUP BY George) AS source
+ON target.Function_name = source.Function_name
+WHEN MATCHED     THEN UPDATE SET target.Function_count = target.Function_count + source.Function_count
+WHEN NOT MATCHED THEN INSERT VALUES (source.Function_name, source.Function_count);
+GO
+MERGE dbo.HW_11 AS target
+USING (SELECT Lando AS Function_name, COUNT(Lando) AS Function_count
+	   FROM dbo.data_for_merge
+	   WHERE Lando IS NOT NULL GROUP BY Lando) AS source
+ON target.Function_name = source.Function_name
+WHEN MATCHED     THEN UPDATE SET target.Function_count = target.Function_count + source.Function_count
+WHEN NOT MATCHED THEN INSERT VALUES (source.Function_name, source.Function_count);
+GO
+MERGE dbo.HW_11 AS target
+USING (SELECT Lewis AS Function_name, COUNT(Lewis) AS Function_count
+	   FROM dbo.data_for_merge
+	   WHERE Lewis IS NOT NULL GROUP BY Lewis) AS source
+ON target.Function_name = source.Function_name
+WHEN MATCHED     THEN UPDATE SET target.Function_count = target.Function_count + source.Function_count
+WHEN NOT MATCHED THEN INSERT VALUES (source.Function_name, source.Function_count);
+-------------------------------------------------------------------------------------------------------
+
+SELECT SUM(Function_count)
+FROM dbo.HW_11
