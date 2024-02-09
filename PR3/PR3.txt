@@ -1,0 +1,29 @@
+--6  Продуктовый магазин
+--1) Sale (id_sale , id_product, id_ Employees, id_client, saleDate)
+--2) Employees (id_ Employees, First_name, Last_name, Position, Department ID, Address,  Passport, Birthday, Phone)
+--3) Product (id_Product, Name, id_category, id_supplier, Price, Weight)
+--4) Departments ( id_ Departments, name)
+--5) Suppliers (id_Supplier, Delivery_date, Phone)
+--6) Categories_product (id_Category, name)
+--7) Client (id_client, Name, Phone)
+
+--Найти 3-х покупателей, совершивших больше всего покупок в 2023 году.
+SELECT TOP 3 WITH TIES s.id_client, COUNT(s.id_sale)
+FROM Sale s
+WHERE DATENAME(YEAR,s.saleDate) = 2023
+GROUP BY s.id_client
+ORDER BY  COUNT(s.id_sale) DESC
+
+--Найти среднюю цену на каждую категорию продуктов по годам продаж. Результаты отобразить в виде транспонированной таблицы (оси - категории и года)
+
+SELECT Year, [Product1], [Product2], [Product3]
+FROM
+(SELECT DATENAME(YEAR, s.saleDate) AS Year
+       ,c.name
+	   ,p.Price
+ FROM Sale s 
+ JOIN Product p ON s.id_Product = p.id_Product
+ JOIN Categories_product c ON p.id_Category = c.id_Category) t
+PIVOT
+(AVG(t.Price) FOR t.name in ([Product1], [Product2], [Product3])) AS PivotTable
+ORDER BY Year
