@@ -1,0 +1,18 @@
+SELECT name, p1.price
+FROM product p1
+JOIN (SELECT max(price) as price FROM product) p2 on p2.price = p1.price
+
+SELECT TOP 1 WITH TIES name,
+       MAX(p.price) OVER () AS max_p
+FROM product p
+ORDER BY name
+
+SELECT TOP 1 WITH TIES name, max(p.price) as MAX_p
+FROM product p
+GROUP BY name
+ORDER BY max(p.price) DESC
+
+SELECT TOP 1 WITH TIES name,
+       ROW_NUMBER() OVER (ORDER BY p.price DESC) AS max_p
+FROM product p
+ORDER BY p.price DESC
