@@ -1,0 +1,46 @@
+1.	Написать запрос на добавление в таблицу manufacturer нового производителя HP из Америки.
+
+INSERT INTO manufacturer
+VALUES ('5', 'HP', '4')
+
+2.	Написать запрос, благодаря которому возраст пользователя Андрей в таблице user уменьшится в 3 раза.
+
+UPDATE user
+SET age = age/3
+WHERE name = 'Андрей'
+
+3.	Найти название продукта с максимальной ценой.
+
+SELECT TOP 1 WITH TIES name,
+       DENSE_RANK() OVER (ORDER BY price DESC) AS max_p
+FROM product
+
+
+SELECT TOP 1 WITH TIES name,
+       MAX(price) OVER (PARTITION BY name ORDER BY price) AS max_p
+FROM product
+
+
+SELECT name
+FROM product p1
+JOIN (SELECT max(price) FROM product) p2 on p2.price = p1.price
+
+
+SELECT TOP 1 WITH TIES name, max(price) as MAX_p
+FROM product
+GROUP BY name
+ORDER BY max(price)
+
+4.	Написать запрос на выборку всех пользователей с телефонами, начинающимися на +3 и заканчивающимися на 4, либо с возрастом > 35.
+
+SELECT u.id
+FROM user u
+JOIN phone p ON u.id = p.user_id
+WHERE (LEFT(p.name,2) = '+3' AND RIGHT(p.name,1) = '4') OR u.age > 35
+
+5.	Найти топ 5 пользователей, кто купил больше всего продуктов.
+
+SELECT TOP 5 user_id
+FROM
+(SELECT user_id, COUNT(product_id) over (PARTITION BY user_id) AS COUNT_prod FROM order)
+ORDER BY COUNT_prod
