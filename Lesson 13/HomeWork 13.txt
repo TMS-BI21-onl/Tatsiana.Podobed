@@ -1,0 +1,49 @@
+--1 Создание view
+CREATE VIEW v_VisitClients_new AS
+WITH
+T_ClientsSubs AS
+(SELECT DISTINCT ClientsSubID, SubscriptionDateStart, SubsciptrionDateEnd, CAST(ABS(CHECKSUM(NEWID())) AS INT) % 999 AS a
+ FROM [GymsBase].[dbo].[ClientsSubs] s
+ WHERE s.StatusSubscription = 'Active'),
+T_VisitEmployees AS
+(SELECT DISTINCT CAST([DateStart] AS Date) AS DateStart
+ FROM [GymsBase].[dbo].[VisitEmployees]),
+ClientDate AS
+(SELECT ClientsSubID
+       ,DateStart
+	   ,SubscriptionDateStart
+	   ,SubsciptrionDateEnd
+	   ,a
+	   ,CASE WHEN DateStart BETWEEN DATEADD(day,1,SubscriptionDateStart) AND SubsciptrionDateEnd THEN 1
+	    ELSE 0 END AS FLAG
+ FROM T_ClientsSubs
+ CROSS JOIN T_VisitEmployees),
+VisitClients AS
+(SELECT TOP 10 ClientsSubID
+                 ,DateStart AS VisitDate
+				 ,CASE WHEN a = 0 THEN CAST(1000 AS INT)
+				  ELSE a END AS FilialsID
+FROM ClientDate
+WHERE FLAG = 1 and DateStart > cast('2024-01-01' as date)
+ORDER BY newid()),
+T_VisitClients AS
+(SELECT ClientsSubID
+       ,VisitDate
+	   ,vc.FilialsID
+	   ,VisitEmployeeID
+FROM VisitClients vc
+LEFT JOIN (SELECT DISTINCT CAST([DateStart] AS Date) AS DateStart, FilialsID, MAX(VisitEmployeeID) AS VisitEmployeeID
+ FROM [GymsBase].[dbo].[VisitEmployees]
+ GROUP BY CAST([DateStart] AS Date),FilialsID
+-- ORDER BY CAST([DateStart] AS Date
+ ) ve ON vc.FilialsID = ve.FilialsID AND vc.VisitDate = ve.DateStart)
+--INSERT INTO [GymsBase].[dbo].[VisitClients] ([ClientsSubID], [VisitDate], [FilialsID], [VisitEmployeeID])
+SELECT *
+FROM T_VisitClients
+
+--Скрипт для Проекта
+SELECT s.PassportNumber, s.SubsciptionDatePurchase, v.VisitDate, f.Address, e.EmployeeID, e.FilialsID
+FROM [dbo].[v_VisitClients_new] v
+JOIN [dbo].[Filials] f ON v.FilialsID = f.FilialsID
+JOIN [dbo].[ClientsSubs] s ON v.ClientsSubID = s.ClientsSubID
+LEFT JOIN [dbo].[VisitEmployees] e ON e.VisitEmployeeID = v.VisitEmployeeID
