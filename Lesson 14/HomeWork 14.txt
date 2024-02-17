@@ -1,0 +1,73 @@
+--1.	Для своей базы данных создайте объект для нахождения общего рейтинга 
+--топ 50 тренеров за всю историю работы спортзала, где рейтинг определяется количеством баллов 
+--за количество индивидуальных тренировок день (10 и более тренировок – 3 балла, 5-10 – 2 балла, 
+--меньше 5 – 1 балл). 
+
+CREATE VIEW v_HW14_Top50Employees AS
+SELECT TOP 50 WITH TIES Position
+					   ,EmployeeID
+					   ,FirstName
+					   ,LastName
+					   ,sum(BALLS) as BALLS
+FROM
+(
+SELECT vc.VisitDate
+      ,ve.EmployeeID
+--	  ,count(vc.VisitEmployeeID)
+	  ,e.Position
+	  ,e.FirstName
+	  ,e.LastName
+	  ,CASE WHEN count(vc.VisitEmployeeID) >= 10 THEN 3
+	        WHEN count(vc.VisitEmployeeID) < 10 AND count(vc.VisitEmployeeID) >= 5 THEN 2
+			WHEN count(vc.VisitEmployeeID) < 5 THEN 1
+       END AS BALLS
+FROM [GymsBase].[dbo].[VisitClients] vc
+join [dbo].[VisitEmployees] ve ON ve.VisitEmployeeID = vc.VisitEmployeeID
+join [dbo].[Employees] e ON e.EmployeeID = ve.EmployeeID
+WHERE vc.VisitEmployeeID IS NOT NULL
+GROUP BY vc.VisitDate, ve.EmployeeID, e.Position, e.FirstName, e.LastName
+--ORDER BY count(vc.VisitEmployeeID) DESC
+) v
+GROUP BY Position
+        ,EmployeeID
+	    ,FirstName
+	    ,LastName
+ORDER BY BALLS DESC
+
+SELECT *
+FROM [GymsBase].[dbo].[v_HW14_Top50Employees]
+
+
+
+
+--2.	Изучите данные графики. Как можно улучшить каждый? 
+--Пришлите ваши предложения (текстом, реализовывать не надо), а позже разберем на занятии.
+
+
+а. 
+-Не нужна пояснительная сноска
+-разноцветный фон лишний
+-разноцветные столбцы лишние
+- не хватает подписей данных
+-убрать тени
+
+b.
+-нет названия диаграммы
+-начало не с нуля
+-странно делать тор 4 в одной колонке
+-не понятно что относится к тор 4
+-бы указывала на графике в процентном соотношенни к общему пулу
+-не использовать объемные фигуры, убрать тени
+
+c.
+-очень маленький шрифт
+-надо поменять оси местами
+-нет подписей данных
+-было бы нагляднее вообще сделать круговой график с процентами
+
+
+
+
+
+
+
